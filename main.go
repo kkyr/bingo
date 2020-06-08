@@ -84,7 +84,8 @@ func setBingWallpaper() {
 		log.Printf("[ERR] unable to retrieve Bing image of the day: %v", err)
 		return
 	}
-
+	// append a dummy appendix for wallpaper module to recognize the filename
+	image.URL = image.URL + "/fakefilename=2020.jpg"
 	log.Printf("[INF] updating wallpaper, url: %q, copyright: %q", image.URL, image.Copyright)
 
 	if err := wallpaper.SetFromURL(image.URL); err != nil {
