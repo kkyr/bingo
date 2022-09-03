@@ -11,8 +11,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/jasonlvhit/gocron"
-	"github.com/kkyr/wallpaper"
+	"github.com/go-co-op/gocron"
+	"github.com/reujab/wallpaper"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 
 func init() {
 	flag.StringVar(&outputFile, "o", "", "output file for logs")
-	flag.StringVar(&updateTime, "t", "08:00", "24-hour time when wallpaper is updated")
+	flag.StringVar(&updateTime, "t", "08:00", "24-hour UTC time when wallpaper is updated")
 	flag.BoolVar(&killFlag, "k", false, "update wallpaper once and exit")
 
 	flag.Usage = usage
@@ -66,14 +66,16 @@ func start() {
 		os.Exit(0)
 	}
 
+	s := gocron.NewScheduler(time.UTC)
+
 	// set again daily
-	if err := gocron.Every(1).Day().At(updateTime).Do(setBingWallpaper); err != nil {
+	if _, err := s.Every(1).Day().At(updateTime).Do(setBingWallpaper); err != nil {
 		log.Printf("[ERR] failed to create daily update job at %q: %v", updateTime, err)
 		os.Exit(1)
 	}
 	log.Printf("[INF] wallpaper will be updated again daily at %s", updateTime)
 
-	<-gocron.Start()
+	s.StartBlocking()
 }
 
 // setBingWallpaper sets the wallpaper to Bing's current image of the day,
